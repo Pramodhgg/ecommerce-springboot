@@ -53,8 +53,11 @@ public class ProductServiceImpl implements  ProductService{
     @Autowired
     private FileService fileService;
 
-    @Value("${product.image")
+    @Value("${product.image}")
     private String path;
+
+    @Value("${image.base.url}")
+    private String imageBaseUrl;
 
     @Override
     public ProductDTO addProduct(ProductDTO productDTO, Long categoryId) {
@@ -98,7 +101,12 @@ public class ProductServiceImpl implements  ProductService{
         List<Product> products = pageProduct.getContent();
 
         List<ProductDTO> productDTOS = products.stream()
-                .map(product -> modelMapper.map(product, ProductDTO.class)).toList();
+                .map(product ->{
+
+                 ProductDTO productDTO = modelMapper.map(product, ProductDTO.class);
+                 productDTO.setImage(constructImagePath(product.getImage()));
+                 return productDTO;
+                }).toList();
         ProductResponse productResponse = new ProductResponse();
         productResponse.setContent(productDTOS);
         productResponse.setPageNumber(pageProduct.getNumber());
@@ -108,6 +116,11 @@ public class ProductServiceImpl implements  ProductService{
         productResponse.setLastPage(pageProduct.isLast());
         return productResponse;
     }
+
+    private String constructImagePath(String imageName) {
+        return imageBaseUrl.endsWith("/")? imageBaseUrl + imageName : imageBaseUrl + "/" + imageName;
+    }
+
 
     @Override
     public ProductResponse getProductByCategory(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder,Long categoryId) {
@@ -201,6 +214,7 @@ public class ProductServiceImpl implements  ProductService{
 
         //Upload image to serve
         //Get the file name of uploaded image
+
 
         String fileName = fileService.uploadImage(path, image);
 

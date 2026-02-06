@@ -225,7 +225,6 @@ public class ProductServiceImpl implements  ProductService{
         //Upload image to serve
         //Get the file name of uploaded image
 
-
         String fileName = fileService.uploadImage(path, image);
 
         //Updating the new file name to the product
